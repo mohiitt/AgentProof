@@ -1,0 +1,195 @@
+{
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "name": "job_brief_in",
+      "description": "AgentProof buyer job brief input. Example: 'Extract structured data from 500 PDFs into a clean, validated CSV.' Use this branch with client.chat() to resolve required skill IDs.",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat"
+      },
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "prompt_1",
+      "provider": "prompt",
+      "name": "skill_extraction_instructions",
+      "description": "Constrains the RocketRide LLM step to return only AgentProof taxonomy IDs that can join with HydraDB evidence.",
+      "config": {
+        "instructions": [
+          "Given a job brief, return a JSON array of skill_id strings drawn only from the AgentProof skill taxonomy in contracts/skill_schema.json. Do not invent ids. For the canonical PDF demo brief, return only relevant ids such as pdf_ocr, batch_pdf_extraction, table_extraction, schema_mapping, csv_generation, and data_validation."
+        ],
+        "parameters": {}
+      },
+      "ui": {
+        "position": {
+          "x": 260,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ]
+    },
+    {
+      "id": "llm_gemini_1",
+      "provider": "llm_gemini",
+      "name": "skill_extraction_llm",
+      "description": "Optional live RocketRide skill extraction path. Requires ROCKETRIDE_GEMINI_KEY with usable Gemini quota. If unavailable, AgentProof uses src/lib/rocketride/extractSkills.ts as the deterministic fallback over the same skill taxonomy.",
+      "config": {
+        "profile": "gemini-2_0-flash",
+        "gemini-2_0-flash": {
+          "apikey": "${ROCKETRIDE_GEMINI_KEY}"
+        }
+      },
+      "ui": {
+        "position": {
+          "x": 560,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "prompt_1"
+        }
+      ]
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "name": "skill_ids_out",
+      "description": "RocketRide output for AgentProof skill matching. These IDs feed HydraDB evidence retrieval and AgentProof trust scoring; they do not directly choose the final agent.",
+      "config": {},
+      "ui": {
+        "position": {
+          "x": 860,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "llm_gemini_1"
+        }
+      ]
+    },
+    {
+      "id": "webhook_1",
+      "provider": "webhook",
+      "name": "raw_marketplace_event_in",
+      "description": "Raw marketplace event input. Examples include job_completed, job_disputed, refund_issued, late_delivery, and repeat_hire. Use this branch with client.send().",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 280
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "parse_1",
+      "provider": "parse",
+      "name": "parse_marketplace_event",
+      "description": "Parses the raw marketplace event payload before PII scrubbing.",
+      "config": {},
+      "ui": {
+        "position": {
+          "x": 260,
+          "y": 280
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "tags",
+          "from": "webhook_1"
+        }
+      ]
+    },
+    {
+      "id": "anonymize_text_1",
+      "provider": "anonymize_text",
+      "name": "pii_scrub",
+      "description": "RocketRide privacy step. Strips PII before the event becomes trust evidence. If this live node is unavailable, AgentProof uses src/lib/rocketride/anonymize.ts as the offline fallback.",
+      "config": {
+        "profile": "glinerMultiPII",
+        "glinerMultiPII": {
+          "anonymizeChar": "█"
+        }
+      },
+      "ui": {
+        "position": {
+          "x": 560,
+          "y": 280
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "parse_1"
+        }
+      ]
+    },
+    {
+      "id": "response_text_1",
+      "provider": "response_text",
+      "name": "anonymized_event_out",
+      "description": "RocketRide output for the trust-event branch. AgentProof server code then maps this anonymized marketplace event with src/lib/rocketride/mapEvent.ts and validates it with contracts/trust_event_schema.json before HydraDB ingest.",
+      "config": {},
+      "ui": {
+        "position": {
+          "x": 860,
+          "y": 280
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "anonymize_text_1"
+        }
+      ]
+    }
+  ],
+  "source": "chat_1",
+  "project_id": "7c8dbb6f-4e37-4a99-8f42-4f6ff93a54a1",
+  "version": 1,
+  "isLocked": false,
+  "snapToGrid": true,
+  "snapGridSize": [
+    10,
+    10
+  ],
+  "docRevision": 1
+}

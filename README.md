@@ -8,13 +8,20 @@ instead of a single global rating.
 Requirements: Node.js 20.19+ or 22.12+ and npm.
 
 ```bash
-cp .env.example .env.local
-npm install
-npm run dev
+./start.sh
 ```
 
-Open the local URL printed by Vite. The initial app is a placeholder that makes
-the architecture and team boundary visible.
+Open `http://127.0.0.1:5173`. The launcher installs locked dependencies when
+needed, runs the test/typecheck preflight, and starts the interactive demo.
+Use `RUN_CHECKS=0 ./start.sh` for a faster restart or `PORT=5174 ./start.sh`
+when the default port is busy.
+
+The browser demo is local-first and fallback-safe. Optional **Live tools**
+checks run server-side through local `/api/*` routes and never expose HydraDB or
+RocketRide credentials to the frontend.
+
+See `WEBAPP_GUIDE.md` for the detailed interaction flow, demo/live-service
+boundary, and troubleshooting steps.
 
 Useful checks:
 

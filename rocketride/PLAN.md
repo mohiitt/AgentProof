@@ -51,9 +51,16 @@ Corrections from the local docs, in order of how much they changed the plan:
   auto-syncs both `ROCKETRIDE_URI` and `ROCKETRIDE_APIKEY` into `.env` on
   "Connect to Server" — never hand-edit them. (Earlier version of this plan
   said local needs no key; that was wrong.)
-- **`webhook` outputs a `tags` lane, not `text`.** A `parse` node is required
-  between any `webhook` source and a text-processing node
-  (`webhook → parse → text-consumer`).
+- **`webhook`'s `_source` can emit `tags`, `text`, `audio`, `video`, `image`,
+  or `questions`** (confirmed via `services-catalog.json` once connected) —
+  whichever lane a downstream `input` requests. Live-tested: wiring
+  `{ lane: "text", from: "webhook_1" }` directly works, no `parse` node
+  needed for plain text/JSON payloads. (Earlier version of this plan said
+  `parse` was required; that was an overgeneralization from a
+  file-processing example.) `classify.pipe` still goes through `parse`
+  anyway since it was already confirmed working before this was discovered —
+  not worth the risk of changing a working pipeline mid-outage (see
+  `pipelines/README.md`).
 - **Response nodes are lane-specific**: `response_text`, `response_answers`,
   etc. — there is no generic `response` provider.
 - **There is no plain HTTP node.** `tool_http_request` is a *tool*, invocable
@@ -76,14 +83,19 @@ only** (R4) and has a deterministic keyword fallback. R3 event→TrustEvent is
 pure logic with no LLM — a missing key degrades gracefully, never breaks the
 pipeline.
 
-### Still needed from the team
+### Runtime actually in use: RocketRide Cloud, not the local engine
 
-1. Run **`RocketRide: Connect to Server`** in VS Code — this both starts the
-   local engine and populates `.rocketride/services-catalog.json` +
-   `schema/*.json`, which resolve every remaining placeholder below in one
-   pass (provider ids, Gemini profile name, exact source-node config shape).
-2. `ROCKETRIDE_GEMINI_KEY` — **only** for the R4 skill-extraction node;
-   optional thanks to the keyword fallback.
+`.env` has `ROCKETRIDE_URI=https://api.rocketride.ai` — the team is running
+against **Cloud**, not the local engine originally planned. `client.ts`'s
+`resolveUri()` only defaults to `localhost:5565` when `ROCKETRIDE_URI` is
+unset, so it correctly follows whatever `.env` says; no code change needed,
+just noting the actual setup diverged from the original plan.
+
+**Blocked:** `anonymize_text` hangs on this Cloud account (isolated via six
+live test runs — see `pipelines/README.md` for the full breakdown). This
+blocks `classify.pipe` and `classifyEvent()` end-to-end until RocketRide's
+side is healthy again. `ROCKETRIDE_GEMINI_KEY` is now set, so
+`extract_skills.pipe` is unblocked on that front, but not yet live-tested.
 
 **Not blocked while waiting:** R2 sample events, the `TrustEvent` mapper/
 normalizer, the validator gate, R4's keyword fallback, and the R6 file-based
@@ -201,27 +213,30 @@ events (all 5 types), R3 `mapEvent` (deterministic, contract-validated), R4
 `writeTrustEvent`. 23 tests passing; `tsc --noEmit` and `vite build` both
 clean.
 
-**Engine connected; `classify.pipe` confirmed running.** The teammate ran
-`RocketRide: Connect to Server`; `.rocketride/services-catalog.json` exists.
-Every provider id guessed earlier turned out correct against the real
-catalog. Fixed one real bug found this way: `anonymize_text_1` in
-`classify.pipe` had an empty `config` (its `profile` field is required) —
-now set to `glinerMultiPII`, a local NER model, no API key needed.
-`classify.pipe` (`webhook → parse → anonymize_text → response_text`) runs
-end-to-end.
+**Connected to RocketRide Cloud; every guessed provider id confirmed
+correct; `anonymize_text` found broken on this account.** `.env` now has
+real credentials (`ROCKETRIDE_URI=https://api.rocketride.ai`,
+`ROCKETRIDE_APIKEY`, `ROCKETRIDE_GEMINI_KEY`). `client.ts`'s `pingEngine()`
+succeeds against the live connection — auth and connectivity are confirmed
+working. Two real config bugs were found and fixed against the live schema
+(`anonymize_text_1`'s missing `profile`; `llm_gemini`'s wrong nested config
+key — see `pipelines/README.md`).
 
-`extract_skills.pipe` failed with "Pipeline references 1 undefined
-variable" (`${ROCKETRIDE_GEMINI_KEY}` unset in `.env`) — also fixed a real
-config bug while there: the `llm_gemini` nested config key is a short label
-(`"5-flash"`), not the profile string, unlike the `llm_anthropic` pattern
-this was modeled on. **Still blocked on a real `ROCKETRIDE_GEMINI_KEY`** to
-actually run; `extractSkills()` is the deterministic fallback used until
-then. See `pipelines/README.md` for full detail.
+**But `anonymize_text` itself hangs `client.use()`** — isolated through six
+live test runs (fresh `project_id` each time, with/without `parse`, two
+different profiles) to rule out zombie task state, config mistakes, and
+model choice. `webhook` and `parse` are individually confirmed fast and
+correct in isolation. This is a RocketRide Cloud-side issue on the connected
+account, not something fixable from our config. Full breakdown in
+`pipelines/README.md`.
 
-`src/server/rocketride/client.ts` (`classifyEvent()`, `pingEngine()`) still
-needs a run against the now-live engine to confirm the `anonymize_text`
-node's redaction output stays valid JSON (see the UNVERIFIED note in that
-file) — not yet done.
+**Practical consequence:** `classify.pipe` / `classifyEvent()` are
+**blocked**, not just unverified. `extract_skills.pipe` is unblocked on
+credentials but not yet live-tested (spent the session's test budget
+isolating the `anonymize_text` issue first, since it blocks the primary R3
+classification path). The offline path (`mapEvent()` +
+`anonymizeText()` regex fallback, `extractSkills()` keyword fallback) is
+fully tested and remains what the demo runs — unaffected by any of this.
 
 **Not started:** R6 HTTP handoff to a live HydraDB ingest endpoint (file
 fallback works today).

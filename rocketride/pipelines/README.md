@@ -1,33 +1,53 @@
 # RocketRide pipelines
 
-## Status: classify.pipe confirmed running; extract_skills.pipe fixed, needs a real key
+## Status: anonymize_text hangs on RocketRide Cloud -- use the offline fallback
 
-The local engine is connected (`.rocketride/services-catalog.json` and
-`schema/*.json` now exist). Every provider id guessed from the docs turned
-out correct against the real catalog: `webhook`, `chat`, `parse`,
-`anonymize_text`, `prompt`, `llm_gemini`, `response_text`, `response_answers`
-all exist. Two things were fixed against the live schema:
+Connected to RocketRide Cloud (`ROCKETRIDE_URI=https://api.rocketride.ai` in
+`.env`; the local engine was never actually used -- see PLAN.md). Every
+provider id guessed from the docs turned out correct against the real
+catalog: `webhook`, `chat`, `parse`, `anonymize_text`, `prompt`, `llm_gemini`,
+`response_text`, `response_answers` all exist, and two real config bugs were
+found and fixed (missing `anonymize_text` profile; wrong `llm_gemini` nested
+key -- see git history on this file for detail).
 
-- **`classify.pipe`**: `anonymize_text_1` had an empty `config` (its
-  `profile` field is required). Set to `glinerMultiPII` — a local NER model
-  bundled with the engine, no API key needed — with `anonymizeChar: "█"`.
-  `classify.pipe` is confirmed running end-to-end.
-- **`extract_skills.pipe`**: failed with "Pipeline references 1 undefined
-  variable" — `${ROCKETRIDE_GEMINI_KEY}` isn't set in `.env`. Also fixed the
-  node config shape, which was wrong: per
-  `.rocketride/schema/llm_gemini.json`, the nested config key is a short
-  label (`"5-flash"`), **not** the profile string itself
-  (`"gemini-2_5-flash"`) — different from the `llm_anthropic` pattern this
-  was originally modeled on. Still needs a real `ROCKETRIDE_GEMINI_KEY` in
-  `.env` to actually run; until then use `extractSkills()`
-  (`src/lib/rocketride/extractSkills.ts`), the deterministic fallback.
+**`anonymize_text` itself is broken on this Cloud account**, isolated
+through six live test runs with `client.use()`/`client.send()` directly
+(bypassing this repo's `.pipe` files to control every variable):
+
+| Pipeline | Result |
+| --- | --- |
+| `webhook -> response_text` (no processing) | works, instant |
+| `webhook -> parse -> response_text` | works, instant |
+| `webhook -> anonymize_text -> response_text` (`glinerMultiPII`) | `use()` hangs, 30s+ |
+| same, fresh `project_id` each time | still hangs (rules out zombie/orphaned task state) |
+| same, `glinerSmall` profile instead | still hangs (rules out that specific model) |
+
+`webhook` and `parse` are confirmed fine in isolation; `anonymize_text` hangs
+`client.use()` itself (before any data is even sent) regardless of profile,
+`project_id` freshness, or `useExisting`. This looks like a genuine outage or
+broken deployment of that node type on the connected Cloud account, not a
+config mistake on our side. Not something diagnosable further without
+RocketRide's own dashboard/logs.
+
+**Consequence:** `classify.pipe` and `client.ts`'s `classifyEvent()` are
+**currently non-functional** end-to-end because of this. The fully offline,
+fully-tested path (`mapEvent()` + `anonymizeText()` regex fallback,
+`src/lib/rocketride/`) remains the reliable one for the demo and needs no
+change. Re-test `classify.pipe` once RocketRide's `anonymize_text` node is
+confirmed healthy again (their status page, or a support ticket).
+
+`extract_skills.pipe`: fixed the same session (`${ROCKETRIDE_GEMINI_KEY}` was
+unset; also the `llm_gemini` nested config key was wrong -- a short label
+like `"5-flash"`, not the profile string). Not yet live-tested given the
+`anonymize_text` outage ate the test budget for this session; the
+`extractSkills()` keyword fallback remains what the demo runs.
 
 Source-node `config` requires `hideForm`/`mode`/`type` (confirmed via
 `.rocketride/schema/webhook.json` and `chat.json` — `required` includes all
 three); `parameters` is optional. Response nodes' schemas list `laneName` as
 required, but the local common-mistakes doc explicitly endorses `config: {}`
-as correct/default for them, and `response_text`/`response_answers` run fine
-with `{}` in the confirmed-working `classify.pipe` — left as `{}`.
+as correct/default for them, and `response_text`/`response_answers` ran fine
+with `{}` in every live test above — left as `{}`.
 
 ## Why classify.pipe only does PII scrubbing, not classification
 

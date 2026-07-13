@@ -1,35 +1,37 @@
 {
   "components": [
     {
-      "id": "in",
+      "id": "webhook_1",
       "provider": "webhook",
       "name": "raw_event_in",
-      "description": "Receives a RawMarketplaceEvent JSON payload (see src/types/rocketride.ts)."
+      "description": "Receives a RawMarketplaceEvent JSON payload (see src/types/rocketride.ts), sent as text via client.send().",
+      "config": { "hideForm": true, "mode": "Source", "parameters": {}, "type": "webhook" }
     },
     {
-      "id": "anonymize",
-      "provider": "anonymize",
+      "id": "parse_1",
+      "provider": "parse",
+      "config": {},
+      "input": [{ "lane": "tags", "from": "webhook_1" }]
+    },
+    {
+      "id": "anonymize_text_1",
+      "provider": "anonymize_text",
       "name": "pii_scrub",
-      "description": "R5: strips emails, phone numbers, and account IDs from free-text fields before they become trust evidence. Provider id is a best-effort guess from the docs Nodes list (Text > Anonymize) -- confirm against the live node catalog before running.",
-      "input": [{ "lane": "text", "from": "in" }]
+      "description": "R5: strips PII from the raw event text before it becomes trust evidence. Real engine PII detection supersedes the regex fallback in src/lib/rocketride/anonymize.ts, which is used offline instead.",
+      "config": {},
+      "input": [{ "lane": "text", "from": "parse_1" }]
     },
     {
-      "id": "classify",
-      "provider": "http_request",
-      "name": "classify_via_map_event",
-      "description": "R3: delegates to the RocketRide server adapter's /classify endpoint, which runs src/lib/rocketride/mapEvent.ts. Classification logic (event_type -> edge_type/outcome) is deterministic and lives in one place (mapEvent.ts, unit-tested) rather than being duplicated as pipeline JSON. Wire the real URL once R1's client.ts exposes the endpoint.",
-      "config": {
-        "method": "POST",
-        "url": "${ROCKETRIDE_CLASSIFY_ENDPOINT}"
-      },
-      "input": [{ "lane": "text", "from": "anonymize" }]
-    },
-    {
-      "id": "out",
-      "provider": "response",
-      "name": "trust_event_out",
-      "description": "Emits a TrustEvent[] matching contracts/trust_event_schema.json.",
-      "input": [{ "lane": "text", "from": "classify" }]
+      "id": "response_text_1",
+      "provider": "response_text",
+      "name": "anonymized_event_out",
+      "description": "Returns the anonymized event text. src/server/rocketride/client.ts JSON.parses this and runs mapEvent() (src/lib/rocketride/mapEvent.ts) to derive edge_type/outcome deterministically -- that table is not duplicated here.",
+      "config": {},
+      "input": [{ "lane": "text", "from": "anonymize_text_1" }]
     }
-  ]
+  ],
+  "source": "webhook_1",
+  "project_id": "8f4a9733-9c6b-4e8d-91e2-29a8a8bfabc7",
+  "viewport": { "x": 0, "y": 0, "zoom": 1 },
+  "version": 1
 }

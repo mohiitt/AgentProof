@@ -1,39 +1,58 @@
 # RocketRide pipelines
 
-## Status: drafted, not yet run against the engine
+## Status: drafted against local docs, not yet run against the engine
 
-`classify.pipe` and `extract_skills.pipe` are structural drafts built from
-`docs.rocketride.org` (components, lanes, `${VAR}` interpolation, the
-`llm_anthropic` node shape). They have **not been executed** — there is no
-local RocketRide engine running yet (R1). Before running either pipeline:
+`classify.pipe` and `extract_skills.pipe` are structural drafts, corrected
+against the authoritative local docs the VS Code extension generated at
+`.rocketride/docs/` (component reference, pipeline rules, common mistakes).
+They have **not been executed** — `.rocketride/services-catalog.json` and
+`.rocketride/schema/*.json` (the server-generated, single-source-of-truth
+catalog) don't exist yet, which means no engine has connected to this
+workspace. `curl http://localhost:5565/ping` currently refuses the
+connection.
 
-- Confirm the exact provider ids used as placeholders:
-  `anonymize`, `http_request`, `llm_gemini` (only `webhook`, `response`, and
-  `llm_anthropic` are confirmed from the docs). Check the live node catalog
-  once the engine/VS Code extension is available.
-- Replace `REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID` in `extract_skills.pipe`
-  with a real Gemini profile id — left as an intentionally invalid
-  placeholder so it fails loudly instead of silently guessing wrong.
-- Wire `ROCKETRIDE_CLASSIFY_ENDPOINT` once `src/server/rocketride/client.ts`
-  (R1) exposes it.
+**Once you run `RocketRide: Connect to Server` and the catalog appears,
+re-check every placeholder below against it before running these pipelines.**
 
-## Why classify.pipe calls out to our own endpoint
+### Placeholders that need confirming against the live catalog
+
+- `anonymize_text` and `parse` — provider ids inferred from confirmed
+  transformation-chain examples in the local docs, not yet cross-checked
+  against `services-catalog.json`.
+- `llm_gemini` — provider id inferred from the LLM selection table; the
+  `profile` value is an intentionally invalid placeholder
+  (`REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID`) so it fails loudly instead of
+  guessing wrong. Read `.rocketride/schema/llm_gemini.json` →
+  `Pipe.schema.dependencies.profile.oneOf` once available.
+- Source node `config` shape (`hideForm`/`mode`/`parameters`/`type`) — two
+  local docs disagree on whether this is required or `{}` suffices; used the
+  stricter form since one doc explicitly warns it can fail validation
+  otherwise.
+
+## Why classify.pipe only does PII scrubbing, not classification
 
 The `event_type` -> `edge_type`/`outcome` mapping is deterministic (we author
 these raw events ourselves) and lives in one place,
-`src/lib/rocketride/mapEvent.ts`, which is unit-tested against
-`contracts/trust_event_schema.json`. `classify.pipe` does I/O and PII
-scrubbing (Anonymize) and delegates classification to that same tested logic
-via HTTP rather than re-encoding the edge-type table a second time as
-pipeline JSON, which would drift.
+`src/lib/rocketride/mapEvent.ts`, unit-tested against
+`contracts/trust_event_schema.json`. There is no plain HTTP node in
+RocketRide's component model — `tool_http_request` is a tool, invocable only
+by an agent via the `control` plane — so `classify.pipe` does not attempt to
+call back into our own service from inside the graph. Instead it runs
+`webhook -> parse -> anonymize_text -> response_text`, and
+`src/server/rocketride/client.ts` runs `mapEvent()` in TypeScript on the
+returned (already-anonymized) event text. This also means the real engine's
+PII detection can be strictly better than the offline regex fallback
+(`src/lib/rocketride/anonymize.ts`) without any pipeline-JSON changes.
 
 ## extract_skills.pipe has a required fallback
 
-If `GEMINI_API_KEY` is unset, callers should use
-`extractSkills()` (`src/lib/rocketride/extractSkills.ts`) directly instead of
-running this pipeline — it is a deterministic keyword matcher over the same
-`skill_id` taxonomy and needs no credentials. It is what the offline demo
-runs today.
+If `ROCKETRIDE_GEMINI_KEY` is unset, callers should use `extractSkills()`
+(`src/lib/rocketride/extractSkills.ts`) directly instead of running this
+pipeline — it is a deterministic keyword matcher over the same `skill_id`
+taxonomy and needs no credentials. It is what the offline demo runs today.
+Uses `chat` (not `webhook`) as the source since a job brief is a
+conversational/single-shot question — see `client.chat()` vs `client.send()`
+in `ROCKETRIDE_COMMON_MISTAKES.md`.
 
 Every produced trust event must validate against
 `../contracts/trust_event_schema.json`; see

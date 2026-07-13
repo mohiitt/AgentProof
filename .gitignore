@@ -8,3 +8,4 @@ dist/
 *.tsbuildinfo
 rocketride/samples/out/*.json
 .rocketride/
+.vercel

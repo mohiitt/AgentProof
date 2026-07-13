@@ -129,6 +129,7 @@ h1 em { color: var(--violet); font-weight: 400; }
 .demo-map li strong { font-size: 13px; line-height: 1.35; }
 .demo-map li p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .mode-toggle { margin-bottom: 16px; padding: 16px; display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; border: 1px solid var(--line); background: #141310; }
+.mode-toggle.demo-only { grid-template-columns: auto 1fr; }
 .mode-toggle button { min-height: 38px; padding: 0 14px; border: 1px solid var(--line); color: var(--muted); background: #11100e; font-weight: 750; }
 .mode-toggle button.active { border-color: var(--yellow); color: #15140f; background: var(--yellow); }
 .mode-toggle p { margin: 0 0 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; }

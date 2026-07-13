@@ -42,6 +42,8 @@ const JOURNEY_REVEAL_DELAY_MS = 520;
 const RESULT_REVEAL_DELAY_MS = 520;
 const COMPLETE_RESULT_REVEAL_STAGE = 8;
 export const INITIAL_APP_VIEW: AppView = "landing";
+export const LIVE_MODE_ENABLED = import.meta.env.VITE_ENABLE_LIVE_MODE === "true"
+  || (import.meta.env.VITE_ENABLE_LIVE_MODE === undefined && import.meta.env.DEV);
 
 export interface HydraDbProofCard {
   id: string;
@@ -779,6 +781,7 @@ export function App() {
   }
 
   function switchMode(mode: DemoMode) {
+    if (mode === "live" && !LIVE_MODE_ENABLED) return;
     setDemoMode(mode);
     setFormError("");
     if (mode === "live") {
@@ -862,14 +865,18 @@ export function App() {
           </ol>
         </div>
 
-        <div className="mode-toggle" role="group" aria-label="Demo mode">
+        <div className={LIVE_MODE_ENABLED ? "mode-toggle" : "mode-toggle demo-only"} role="group" aria-label="Demo mode">
           <button type="button" className={demoMode === "demo" ? "active" : ""} onClick={() => switchMode("demo")}>
             Demo mode
           </button>
-          <button type="button" className={demoMode === "live" ? "active" : ""} onClick={() => switchMode("live")}>
-            Live mode
-          </button>
-          <p>{demoMode === "live" ? "Live mode hides agent data until RocketRide and HydraDB finish server-side proof checks." : "Demo mode uses deterministic skill extraction, seed evidence, and local trust scoring."}</p>
+          {LIVE_MODE_ENABLED && (
+            <button type="button" className={demoMode === "live" ? "active" : ""} onClick={() => switchMode("live")}>
+              Live mode
+            </button>
+          )}
+          <p>{LIVE_MODE_ENABLED && demoMode === "live"
+            ? "Live mode hides agent data until RocketRide and HydraDB finish server-side proof checks."
+            : "Demo mode uses deterministic skill extraction, seed evidence, and local trust scoring."}</p>
         </div>
 
         <form className="analysis-form" onSubmit={analyze}>
@@ -904,7 +911,7 @@ export function App() {
           {formError && <p className="form-error" id="form-error" role="alert">{formError}</p>}
         </form>
 
-        <article className="live-tools-panel" aria-labelledby="live-tools-title">
+        {LIVE_MODE_ENABLED && <article className="live-tools-panel" aria-labelledby="live-tools-title">
           <div className="live-tools-heading">
             <div>
               <p className="eyebrow">Optional proof</p>
@@ -955,7 +962,7 @@ export function App() {
               </div>
             ))}
           </div>
-        </article>
+        </article>}
       </section>
 
       <section className="results" id="analysis" aria-labelledby="results-title">

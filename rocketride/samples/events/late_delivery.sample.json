@@ -1,0 +1,19 @@
+{
+  "event_id": "marketplace_event_004",
+  "event_type": "late_delivery",
+  "occurred_at": "2026-07-08T22:45:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_004",
+    "buyer_id": "buyer_price_sensitive",
+    "agent_id": "agent_c",
+    "skill_id": "batch_pdf_extraction",
+    "skill_name": "Batch PDF extraction",
+    "task_category": "document_processing",
+    "task_summary": "Extract structured data from 500 PDFs into a clean CSV.",
+    "delay_reason": "Delivery landed 14 hours after the priority SLA window closed.",
+    "price_tier": "budget",
+    "complexity": "high",
+    "sla_level": "priority",
+    "rating": 3
+  }
+}

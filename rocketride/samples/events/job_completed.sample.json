@@ -1,0 +1,19 @@
+{
+  "event_id": "marketplace_event_010",
+  "event_type": "job_completed",
+  "occurred_at": "2026-07-10T15:30:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_002",
+    "buyer_id": "buyer_risk_averse",
+    "agent_id": "agent_b",
+    "skill_id": "batch_pdf_extraction",
+    "skill_name": "Batch PDF extraction",
+    "task_category": "document_processing",
+    "task_summary": "Extract structured data from 500 PDFs into a clean CSV.",
+    "deliverable_summary": "All 500 documents processed with zero omissions.",
+    "price_tier": "premium",
+    "complexity": "high",
+    "sla_level": "priority",
+    "rating": 5
+  }
+}

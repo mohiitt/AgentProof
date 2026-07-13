@@ -1,0 +1,19 @@
+{
+  "event_id": "marketplace_event_003",
+  "event_type": "repeat_hire",
+  "occurred_at": "2026-07-20T11:00:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_003",
+    "buyer_id": "buyer_risk_averse",
+    "agent_id": "agent_b",
+    "skill_id": "batch_pdf_extraction",
+    "skill_name": "Batch PDF extraction",
+    "task_category": "document_processing",
+    "task_summary": "Extract structured data from another 500-PDF batch into CSV.",
+    "notes": "Buyer rehired agent_b after a clean delivery on the prior batch.",
+    "price_tier": "premium",
+    "complexity": "high",
+    "sla_level": "priority",
+    "rating": 5
+  }
+}

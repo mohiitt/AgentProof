@@ -1,0 +1,19 @@
+{
+  "event_id": "marketplace_event_001",
+  "event_type": "job_disputed",
+  "occurred_at": "2026-07-13T18:00:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_001",
+    "buyer_id": "buyer_risk_averse",
+    "agent_id": "agent_a",
+    "skill_id": "batch_pdf_extraction",
+    "skill_name": "Batch PDF extraction",
+    "task_category": "document_processing",
+    "task_summary": "Extract structured data from 500 PDFs into a clean CSV.",
+    "complaint": "The delivered CSV omitted 43 documents from the batch. Contact me at jane.buyer@example.com if you need the file list.",
+    "price_tier": "premium",
+    "complexity": "high",
+    "sla_level": "priority",
+    "rating": 2
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "skill_id": "batch_pdf_extraction",
+    "name": "Batch PDF extraction",
+    "description": "Extract complete, structured content from a large collection of PDF files.",
+    "category": "document_processing",
+    "input_type": "pdf_collection",
+    "output_type": "structured_records",
+    "risk_level": "high",
+    "difficulty": "advanced",
+    "dependencies": ["pdf_ocr"],
+    "typical_failure_modes": ["missed_files", "truncated_content", "duplicate_records"],
+    "evaluation_criteria": ["file_coverage", "field_accuracy", "record_uniqueness"],
+    "source": "agentproof_seed"
+  }
+]

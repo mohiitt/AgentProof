@@ -1,0 +1,13 @@
+{
+  "event_id": "marketplace_event_001",
+  "event_type": "job_disputed",
+  "occurred_at": "2026-07-13T18:00:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_001",
+    "buyer_id": "buyer_risk_averse",
+    "agent_id": "agent_a",
+    "task_summary": "Extract structured data from 500 PDFs into CSV.",
+    "complaint": "The delivered CSV omitted 43 documents from the batch.",
+    "rating": 2
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "trust_event_id": "trust_event_001",
+  "job_id": "job_pdf_500_001",
+  "buyer_id": "buyer_risk_averse",
+  "agent_id": "agent_a",
+  "skill_id": "batch_pdf_extraction",
+  "skill_name": "Batch PDF extraction",
+  "task_category": "document_processing",
+  "outcome": "failed",
+  "edge_type": "DISPUTED_BY",
+  "rating": 2,
+  "price_tier": "premium",
+  "complexity": "high",
+  "sla_level": "priority",
+  "dispute_status": "open",
+  "arbitration_outcome": "none",
+  "summary": "A large PDF extraction job omitted part of the source batch.",
+  "reason": "The delivered CSV omitted 43 of 500 documents.",
+  "timestamp": "2026-07-13T18:00:00Z",
+  "source": "rocketride",
+  "additional_context": {
+    "document_count": 500,
+    "missing_document_count": 43,
+    "anonymized": true
+  }
+}

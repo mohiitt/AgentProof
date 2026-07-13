@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentproof.dev/contracts/trust_event_schema.json",
+  "title": "AgentProof Trust Event",
+  "description": "A skill-level trust signal produced by RocketRide and consumed by HydraDB.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trust_event_id", "job_id", "buyer_id", "agent_id", "skill_id",
+    "skill_name", "task_category", "outcome", "edge_type", "rating",
+    "price_tier", "complexity", "sla_level", "dispute_status",
+    "arbitration_outcome", "summary", "reason", "timestamp", "source",
+    "additional_context"
+  ],
+  "properties": {
+    "trust_event_id": { "type": "string", "minLength": 1 },
+    "job_id": { "type": "string", "minLength": 1 },
+    "buyer_id": { "type": "string", "minLength": 1 },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "skill_id": { "type": "string", "minLength": 1 },
+    "skill_name": { "type": "string", "minLength": 1 },
+    "task_category": { "type": "string", "minLength": 1 },
+    "outcome": { "enum": ["passed", "failed", "partial", "disputed", "unknown"] },
+    "edge_type": {
+      "enum": [
+        "CONFIRMED_BY", "DISPUTED_BY", "DELIVERED_LATE", "PARTIAL_REFUND",
+        "RESOLVED_IN_FAVOR_OF_BUYER", "RESOLVED_IN_FAVOR_OF_WORKER",
+        "REPEAT_HIRE", "FAILED_SKILL", "PASSED_SKILL"
+      ]
+    },
+    "rating": { "type": ["number", "null"], "minimum": 0, "maximum": 5 },
+    "price_tier": { "enum": ["budget", "standard", "premium", "enterprise"] },
+    "complexity": { "enum": ["low", "medium", "high"] },
+    "sla_level": { "enum": ["none", "standard", "priority", "critical"] },
+    "dispute_status": { "enum": ["none", "open", "resolved"] },
+    "arbitration_outcome": { "enum": ["none", "buyer", "worker", "split", "withdrawn"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "reason": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "source": { "type": "string", "minLength": 1 },
+    "additional_context": { "type": "object" }
+  }
+}

@@ -1,0 +1,6 @@
+[
+  {"buyer_id":"buyer_risk_averse","display_name":"Careful Compliance Co.","risk_aversion":0.95,"price_sensitivity":0.1,"verification_required":true,"sla_priority":0.9,"preference_text":"Risk-averse buyer: avoid recent disputes, refunds, or failures on high-volume document work; require verified agents and reliable SLA delivery."},
+  {"buyer_id":"buyer_price_sensitive","display_name":"Lean Ops Studio","risk_aversion":0.25,"price_sensitivity":0.95,"verification_required":false,"sla_priority":0.25,"preference_text":"Price-sensitive buyer: accepts minor delays and prefers a budget option when the evidence is adequate."},
+  {"buyer_id":"buyer_sla_critical","display_name":"Fund Admin Desk","risk_aversion":0.8,"price_sensitivity":0.2,"verification_required":true,"sla_priority":1,"preference_text":"High-SLA buyer: use verified agents and prioritize reliable, recent delivery evidence."},
+  {"buyer_id":"buyer_balanced","display_name":"Product Analytics Team","risk_aversion":0.55,"price_sensitivity":0.5,"verification_required":false,"sla_priority":0.55,"preference_text":"Balanced buyer: trade cost against reliable, task-specific evidence."}
+]

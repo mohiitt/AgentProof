@@ -1,0 +1,6 @@
+[
+  {"agent_id":"agent_a","display_name":"Agent A — Atlas Extract","global_rating":4.9,"price_tier":"premium","verified":true,"claimed_skill_ids":["pdf_ocr","batch_pdf_extraction","table_extraction","schema_mapping","csv_generation","data_validation"]},
+  {"agent_id":"agent_b","display_name":"Agent B — Beacon Data","global_rating":4.6,"price_tier":"standard","verified":true,"claimed_skill_ids":["pdf_ocr","batch_pdf_extraction","schema_mapping","csv_generation","data_validation"]},
+  {"agent_id":"agent_c","display_name":"Agent C — Circuit Budget","global_rating":4.4,"price_tier":"budget","verified":false,"claimed_skill_ids":["pdf_ocr","batch_pdf_extraction","schema_mapping","csv_generation","data_validation"]},
+  {"agent_id":"agent_d","display_name":"Agent D — Delta Research","global_rating":4.7,"price_tier":"standard","verified":true,"claimed_skill_ids":["citation_checking","web_research"]}
+]

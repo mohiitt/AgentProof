@@ -1,0 +1,14 @@
+[
+  { "name": "skill_id", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "agent_id", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "buyer_id", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "task_category", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "outcome", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "edge_type", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "price_tier", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "risk_level", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "complexity", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "sla_level", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "dispute_status", "data_type": "VARCHAR", "max_length": 256, "enable_match": true },
+  { "name": "arbitration_outcome", "data_type": "VARCHAR", "max_length": 256, "enable_match": true }
+]

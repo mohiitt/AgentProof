@@ -1,0 +1,20 @@
+[
+  {"agent_id":"agent_a","skill_id":"pdf_ocr","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_a","skill_id":"batch_pdf_extraction","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_a","skill_id":"table_extraction","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_a","skill_id":"schema_mapping","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_a","skill_id":"csv_generation","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_a","skill_id":"data_validation","claim_status":"claimed","verification":"portfolio_review","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_b","skill_id":"pdf_ocr","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_b","skill_id":"batch_pdf_extraction","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_b","skill_id":"schema_mapping","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_b","skill_id":"csv_generation","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_b","skill_id":"data_validation","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_c","skill_id":"pdf_ocr","claim_status":"claimed","verification":"self_attested","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_c","skill_id":"batch_pdf_extraction","claim_status":"claimed","verification":"self_attested","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_c","skill_id":"schema_mapping","claim_status":"claimed","verification":"self_attested","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_c","skill_id":"csv_generation","claim_status":"claimed","verification":"self_attested","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_c","skill_id":"data_validation","claim_status":"claimed","verification":"self_attested","note":"Claimed capability is not a trust score."},
+  {"agent_id":"agent_d","skill_id":"citation_checking","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."},
+  {"agent_id":"agent_d","skill_id":"web_research","claim_status":"claimed","verification":"verified_delivery_history","note":"Trust depends on the evidence corpus."}
+]

@@ -166,6 +166,32 @@ Add a lightweight JSON-Schema check (e.g. `ajv`) used by both a test and the
 pipeline output step. Every `TrustEvent` and skill list is validated before it
 is written or sent. This is the contract enforcement point.
 
+## Status
+
+**Done (offline core, no RocketRide engine or LLM key required):** R2 sample
+events (all 5 types), R3 `mapEvent` (deterministic, contract-validated), R4
+`extractSkills` keyword fallback, R5 `anonymizeText`, R6 file-based
+`writeTrustEvent`. 23 tests passing; `tsc --noEmit` and `vite build` both
+clean. `classify.pipe` / `extract_skills.pipe` are drafted but **unverified**
+— no local engine has run them yet (see `pipelines/README.md` for the
+placeholders that need confirming once the engine is up).
+
+**Not started:** R1 real `RocketRideClient` wiring (needs local engine at
+`ws://localhost:5565`), R6 HTTP handoff to a live HydraDB ingest endpoint.
+
+### To communicate to Mohit (Rule 3 / shared-surface)
+
+1. Added root-level dev dependencies for my own tests/build: `ajv`,
+   `ajv-formats`, `vitest`, `@types/node`. Touched root `package.json`,
+   `package-lock.json`, and `.gitignore` (not just my owned folders) — likely
+   `package-lock.json` merge friction when HydraDB adds its own deps.
+2. **Please confirm canonical skill IDs.** `data/seed/skills.sample.json`
+   currently has only `batch_pdf_extraction`. My R4 output for the PDF demo
+   brief assumes `pdf_ocr`, `table_extraction`, `schema_mapping`,
+   `csv_generation`, `data_validation` also exist with those exact ids in the
+   HydraDB skill catalog — if the catalog uses different ids the join will
+   silently miss.
+
 ## Files I will create
 
 ```txt

@@ -1,0 +1,28 @@
+{
+  "components": [
+    {
+      "id": "in",
+      "provider": "webhook",
+      "name": "job_brief_in",
+      "description": "Receives a free-text job brief, e.g. 'Extract structured data from 500 PDFs into a clean CSV.'"
+    },
+    {
+      "id": "llm",
+      "provider": "llm_gemini",
+      "name": "skill_extraction_llm",
+      "description": "R4 primary path: asks Gemini to return only canonical skill_ids from contracts/skill_schema.json, as JSON. Provider id follows the confirmed llm_anthropic naming pattern but is UNCONFIRMED for Gemini -- check the live node catalog. Runs only if GEMINI_API_KEY is set; otherwise the caller should use extractSkills() (src/lib/rocketride/extractSkills.ts) as the deterministic fallback instead of this node.",
+      "config": {
+        "profile": "REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID",
+        "apikey": "${GEMINI_API_KEY}",
+        "system_prompt": "Given a job brief, return a JSON array of skill_id strings drawn only from the AgentProof skill taxonomy. Do not invent ids."
+      },
+      "input": [{ "lane": "questions", "from": "in" }]
+    },
+    {
+      "id": "out",
+      "provider": "response",
+      "name": "skill_ids_out",
+      "input": [{ "lane": "answers", "from": "llm" }]
+    }
+  ]
+}

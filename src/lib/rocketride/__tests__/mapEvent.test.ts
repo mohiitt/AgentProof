@@ -35,6 +35,14 @@ describe("mapEvent", () => {
     expect(trustEvent.reason).not.toContain("jane.buyer@example.com");
     expect(trustEvent.reason).toContain("43 documents");
     expect(trustEvent.additional_context.anonymized).toBe(true);
+    expect(trustEvent.additional_context.pii_redacted).toBe(true);
+  });
+
+  it("marks anonymized=true (safe to store) even when nothing needed redacting", () => {
+    const [trustEvent] = mapEvent(jobCompleted as RawMarketplaceEvent);
+
+    expect(trustEvent.additional_context.anonymized).toBe(true);
+    expect(trustEvent.additional_context.pii_redacted).toBe(false);
   });
 
   it("derives dispute_status from arbitration_outcome for disputed jobs", () => {

@@ -88,15 +88,20 @@ const DEFAULT_REASON_BY_EVENT: Record<string, string> = {
   late_delivery: "Delivery missed the committed timeline.",
 };
 
-function deriveReason(eventType: string, payload: Record<string, unknown>): { reason: string; anonymized: boolean } {
+/**
+ * `anonymized: true` means "this text passed the R5 safety check and is safe
+ * to store" -- it is true whether or not anything was actually redacted.
+ * `pii_redacted` separately reports whether the scrubber found something.
+ */
+function deriveReason(eventType: string, payload: Record<string, unknown>): { reason: string; piiRedacted: boolean } {
   for (const field of REASON_FIELDS) {
     const raw = payload[field];
     if (typeof raw === "string" && raw.length > 0) {
       const { text, redacted } = anonymizeText(raw);
-      return { reason: text, anonymized: redacted };
+      return { reason: text, piiRedacted: redacted };
     }
   }
-  return { reason: DEFAULT_REASON_BY_EVENT[eventType] ?? "No additional detail provided.", anonymized: false };
+  return { reason: DEFAULT_REASON_BY_EVENT[eventType] ?? "No additional detail provided.", piiRedacted: false };
 }
 
 /**
@@ -107,7 +112,7 @@ function deriveReason(eventType: string, payload: Record<string, unknown>): { re
 export function mapEvent(event: RawMarketplaceEvent): TrustEvent[] {
   const payload = event.payload ?? {};
   const { edge_type, outcome } = deriveEdgeAndOutcome(event.event_type, payload);
-  const { reason, anonymized } = deriveReason(event.event_type, payload);
+  const { reason, piiRedacted } = deriveReason(event.event_type, payload);
 
   const known = new Set([
     "job_id",
@@ -153,7 +158,8 @@ export function mapEvent(event: RawMarketplaceEvent): TrustEvent[] {
     additional_context: {
       event_id: event.event_id,
       event_type: event.event_type,
-      anonymized,
+      anonymized: true,
+      pii_redacted: piiRedacted,
       ...leftover,
     },
   };

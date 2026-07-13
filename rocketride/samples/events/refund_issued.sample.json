@@ -1,0 +1,20 @@
+{
+  "event_id": "marketplace_event_002",
+  "event_type": "refund_issued",
+  "occurred_at": "2026-07-14T09:15:00Z",
+  "payload": {
+    "job_id": "job_pdf_500_001",
+    "buyer_id": "buyer_risk_averse",
+    "agent_id": "agent_a",
+    "skill_id": "batch_pdf_extraction",
+    "skill_name": "Batch PDF extraction",
+    "task_category": "document_processing",
+    "task_summary": "Extract structured data from 500 PDFs into a clean CSV.",
+    "refund_reason": "Buyer accepted a 20% refund for the 43 missing documents instead of full arbitration.",
+    "arbitration_outcome": "split",
+    "price_tier": "premium",
+    "complexity": "high",
+    "sla_level": "priority",
+    "rating": 2
+  }
+}

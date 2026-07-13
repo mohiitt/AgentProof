@@ -6,3 +6,5 @@ dist/
 *.log
 .vite/
 *.tsbuildinfo
+rocketride/samples/out/*.json
+.rocketride/

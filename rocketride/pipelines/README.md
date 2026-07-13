@@ -1,6 +1,6 @@
 # RocketRide pipelines
 
-## Status: anonymize_text hangs on RocketRide Cloud -- use the offline fallback
+## Status: extract_skills.pipe mechanically verified (blocked on Gemini billing); classify.pipe blocked on a RocketRide-side anonymize_text outage
 
 Connected to RocketRide Cloud (`ROCKETRIDE_URI=https://api.rocketride.ai` in
 `.env`; the local engine was never actually used -- see PLAN.md). Every
@@ -36,11 +36,25 @@ fully-tested path (`mapEvent()` + `anonymizeText()` regex fallback,
 change. Re-test `classify.pipe` once RocketRide's `anonymize_text` node is
 confirmed healthy again (their status page, or a support ticket).
 
-`extract_skills.pipe`: fixed the same session (`${ROCKETRIDE_GEMINI_KEY}` was
-unset; also the `llm_gemini` nested config key was wrong -- a short label
-like `"5-flash"`, not the profile string). Not yet live-tested given the
-`anonymize_text` outage ate the test budget for this session; the
-`extractSkills()` keyword fallback remains what the demo runs.
+`extract_skills.pipe`: **mechanically confirmed working end-to-end**
+(`use()` and `client.chat()` both fast and correct) once
+`ROCKETRIDE_GEMINI_KEY` was set. Went through three `llm_gemini` profiles
+while live-testing:
+
+| Profile | Result |
+| --- | --- |
+| `gemini-2_5-flash` (first guess, nested key `"5-flash"`) | fast LLM error: model deprecated, "no longer available to new users" |
+| `models-gemini-flash-latest` | `chat()` hangs, 45s+ -- possibly the same quota issue below manifesting as retries instead of a fast error; not conclusively isolated |
+| `gemini-2_0-flash` (committed) | fast, correct pipeline mechanics; LLM call itself fails with `429 RESOURCE_EXHAUSTED`, `limit: 0` on the free tier |
+
+The `limit: 0` quota response means the `ROCKETRIDE_GEMINI_KEY` project has
+no Gemini free-tier allocation at all -- an account/billing issue on
+[Google AI Studio](https://ai.google.dev/gemini-api/docs/rate-limits) /
+Cloud Console for that key, not a RocketRide or pipeline-config problem.
+Enable billing (or use a key that has it) to actually get skill-extraction
+answers back; until then `extractSkills()`
+(`src/lib/rocketride/extractSkills.ts`) is what the demo runs, and needs no
+change -- the keyword fallback was never blocked by any of this.
 
 Source-node `config` requires `hideForm`/`mode`/`type` (confirmed via
 `.rocketride/schema/webhook.json` and `chat.json` — `required` includes all

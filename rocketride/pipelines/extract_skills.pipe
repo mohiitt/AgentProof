@@ -51,8 +51,8 @@
       "name": "skill_extraction_llm",
       "description": "R4 primary path. Runs only if ROCKETRIDE_GEMINI_KEY is set; otherwise callers should use extractSkills() (src/lib/rocketride/extractSkills.ts), the deterministic fallback, instead of this pipeline.",
       "config": {
-        "profile": "gemini-2_5-flash",
-        "5-flash": {
+        "profile": "gemini-2_0-flash",
+        "gemini-2_0-flash": {
           "apikey": "${ROCKETRIDE_GEMINI_KEY}"
         }
       },
@@ -93,7 +93,7 @@
     }
   ],
   "source": "chat_1",
-  "project_id": "907086e0-8a42-485d-9554-fd14eb676772",
+  "project_id": "89e454a1-e7a5-4d74-81f6-fa1e8602e29d",
   "version": 1,
   "isLocked": false,
   "snapToGrid": true,

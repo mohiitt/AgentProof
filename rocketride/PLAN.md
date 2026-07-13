@@ -91,11 +91,17 @@ against **Cloud**, not the local engine originally planned. `client.ts`'s
 unset, so it correctly follows whatever `.env` says; no code change needed,
 just noting the actual setup diverged from the original plan.
 
-**Blocked:** `anonymize_text` hangs on this Cloud account (isolated via six
-live test runs — see `pipelines/README.md` for the full breakdown). This
-blocks `classify.pipe` and `classifyEvent()` end-to-end until RocketRide's
-side is healthy again. `ROCKETRIDE_GEMINI_KEY` is now set, so
-`extract_skills.pipe` is unblocked on that front, but not yet live-tested.
+**Blocked (RocketRide-side):** `anonymize_text` hangs on this Cloud account
+(isolated via six live test runs — see `pipelines/README.md`). Blocks
+`classify.pipe` and `classifyEvent()` end-to-end until RocketRide's side is
+healthy again.
+
+**Blocked (Gemini-account-side):** `extract_skills.pipe` is mechanically
+confirmed working end-to-end (`use()`/`chat()` both fast and correct,
+verified live). The LLM call itself fails with `429 RESOURCE_EXHAUSTED,
+limit: 0` — the `ROCKETRIDE_GEMINI_KEY` project has no Gemini free-tier
+quota at all. Needs billing enabled on that Google AI Studio / Cloud Console
+project; not a code or config problem.
 
 **Not blocked while waiting:** R2 sample events, the `TrustEvent` mapper/
 normalizer, the validator gate, R4's keyword fallback, and the R6 file-based
@@ -230,13 +236,21 @@ correct in isolation. This is a RocketRide Cloud-side issue on the connected
 account, not something fixable from our config. Full breakdown in
 `pipelines/README.md`.
 
-**Practical consequence:** `classify.pipe` / `classifyEvent()` are
-**blocked**, not just unverified. `extract_skills.pipe` is unblocked on
-credentials but not yet live-tested (spent the session's test budget
-isolating the `anonymize_text` issue first, since it blocks the primary R3
-classification path). The offline path (`mapEvent()` +
-`anonymizeText()` regex fallback, `extractSkills()` keyword fallback) is
-fully tested and remains what the demo runs — unaffected by any of this.
+`extract_skills.pipe` was then live-tested end-to-end: `use()` and
+`client.chat()` both work correctly (confirmed against 3 `llm_gemini`
+profiles while finding a working one — `gemini-2_5-flash` is deprecated,
+`models-gemini-flash-latest` hung, `gemini-2_0-flash` works mechanically).
+The pipeline itself is sound; it's blocked only on the connected
+`ROCKETRIDE_GEMINI_KEY` project having zero Gemini free-tier quota
+(`429 RESOURCE_EXHAUSTED, limit: 0` — needs billing enabled on that Google
+account, not a code fix).
+
+**Practical consequence:** `classify.pipe` / `classifyEvent()` are blocked on
+RocketRide's side (`anonymize_text` outage). `extract_skills.pipe` is
+mechanically verified but blocked on the Gemini account's billing/quota. The
+offline path (`mapEvent()` + `anonymizeText()` regex fallback,
+`extractSkills()` keyword fallback) is fully tested and remains what the
+demo runs — unaffected by either blocker.
 
 **Not started:** R6 HTTP handoff to a live HydraDB ingest endpoint (file
 fallback works today).

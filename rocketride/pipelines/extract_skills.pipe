@@ -5,7 +5,20 @@
       "provider": "chat",
       "name": "job_brief_in",
       "description": "Receives a free-text job brief, e.g. 'Extract structured data from 500 PDFs into a clean CSV.' Used with client.chat(), not client.send() -- see ROCKETRIDE_COMMON_MISTAKES.md on matching source type to client method.",
-      "config": { "hideForm": true, "mode": "Source", "parameters": {}, "type": "chat" }
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat"
+      },
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
     },
     {
       "id": "prompt_1",
@@ -17,7 +30,20 @@
         ],
         "parameters": {}
       },
-      "input": [{ "lane": "questions", "from": "chat_1" }]
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ]
     },
     {
       "id": "llm_gemini_1",
@@ -25,24 +51,55 @@
       "name": "skill_extraction_llm",
       "description": "R4 primary path. Runs only if ROCKETRIDE_GEMINI_KEY is set; otherwise callers should use extractSkills() (src/lib/rocketride/extractSkills.ts), the deterministic fallback, instead of this pipeline.",
       "config": {
-        "profile": "REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID",
-        "REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID": {
+        "profile": "gemini-2_5-flash",
+        "5-flash": {
           "apikey": "${ROCKETRIDE_GEMINI_KEY}"
-        },
-        "parameters": {}
+        }
       },
-      "input": [{ "lane": "questions", "from": "prompt_1" }]
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "prompt_1"
+        }
+      ]
     },
     {
       "id": "response_answers_1",
       "provider": "response_answers",
       "name": "skill_ids_out",
       "config": {},
-      "input": [{ "lane": "answers", "from": "llm_gemini_1" }]
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "llm_gemini_1"
+        }
+      ]
     }
   ],
   "source": "chat_1",
-  "project_id": "038892b9-5d0e-4d4e-9015-40406c62f0c6",
-  "viewport": { "x": 0, "y": 0, "zoom": 1 },
-  "version": 1
+  "project_id": "907086e0-8a42-485d-9554-fd14eb676772",
+  "version": 1,
+  "isLocked": false,
+  "snapToGrid": true,
+  "snapGridSize": [
+    10,
+    10
+  ],
+  "docRevision": 1
 }

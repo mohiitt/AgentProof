@@ -5,21 +5,66 @@
       "provider": "webhook",
       "name": "raw_event_in",
       "description": "Receives a RawMarketplaceEvent JSON payload (see src/types/rocketride.ts), sent as text via client.send().",
-      "config": { "hideForm": true, "mode": "Source", "parameters": {}, "type": "webhook" }
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      }
     },
     {
       "id": "parse_1",
       "provider": "parse",
+      "name": "Parser",
       "config": {},
-      "input": [{ "lane": "tags", "from": "webhook_1" }]
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": true
+      },
+      "input": [
+        {
+          "lane": "tags",
+          "from": "webhook_1"
+        }
+      ]
     },
     {
       "id": "anonymize_text_1",
       "provider": "anonymize_text",
       "name": "pii_scrub",
       "description": "R5: strips PII from the raw event text before it becomes trust evidence. Real engine PII detection supersedes the regex fallback in src/lib/rocketride/anonymize.ts, which is used offline instead.",
-      "config": {},
-      "input": [{ "lane": "text", "from": "parse_1" }]
+      "config": {
+        "profile": "glinerMultiPII",
+        "glinerMultiPII": {
+          "anonymizeChar": "█"
+        }
+      },
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "parse_1"
+        }
+      ]
     },
     {
       "id": "response_text_1",
@@ -27,11 +72,30 @@
       "name": "anonymized_event_out",
       "description": "Returns the anonymized event text. src/server/rocketride/client.ts JSON.parses this and runs mapEvent() (src/lib/rocketride/mapEvent.ts) to derive edge_type/outcome deterministically -- that table is not duplicated here.",
       "config": {},
-      "input": [{ "lane": "text", "from": "anonymize_text_1" }]
+      "ui": {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "nodeType": "default",
+        "formDataValid": false
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "anonymize_text_1"
+        }
+      ]
     }
   ],
   "source": "webhook_1",
-  "project_id": "8f4a9733-9c6b-4e8d-91e2-29a8a8bfabc7",
-  "viewport": { "x": 0, "y": 0, "zoom": 1 },
-  "version": 1
+  "project_id": "33edca29-1ea5-410a-8dd9-48ac2f296417",
+  "version": 1,
+  "isLocked": false,
+  "snapToGrid": true,
+  "snapGridSize": [
+    10,
+    10
+  ],
+  "docRevision": 2
 }

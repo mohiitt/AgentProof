@@ -1,33 +1,33 @@
 # RocketRide pipelines
 
-## Status: drafted against local docs, not yet run against the engine
+## Status: classify.pipe confirmed running; extract_skills.pipe fixed, needs a real key
 
-`classify.pipe` and `extract_skills.pipe` are structural drafts, corrected
-against the authoritative local docs the VS Code extension generated at
-`.rocketride/docs/` (component reference, pipeline rules, common mistakes).
-They have **not been executed** — `.rocketride/services-catalog.json` and
-`.rocketride/schema/*.json` (the server-generated, single-source-of-truth
-catalog) don't exist yet, which means no engine has connected to this
-workspace. `curl http://localhost:5565/ping` currently refuses the
-connection.
+The local engine is connected (`.rocketride/services-catalog.json` and
+`schema/*.json` now exist). Every provider id guessed from the docs turned
+out correct against the real catalog: `webhook`, `chat`, `parse`,
+`anonymize_text`, `prompt`, `llm_gemini`, `response_text`, `response_answers`
+all exist. Two things were fixed against the live schema:
 
-**Once you run `RocketRide: Connect to Server` and the catalog appears,
-re-check every placeholder below against it before running these pipelines.**
+- **`classify.pipe`**: `anonymize_text_1` had an empty `config` (its
+  `profile` field is required). Set to `glinerMultiPII` — a local NER model
+  bundled with the engine, no API key needed — with `anonymizeChar: "█"`.
+  `classify.pipe` is confirmed running end-to-end.
+- **`extract_skills.pipe`**: failed with "Pipeline references 1 undefined
+  variable" — `${ROCKETRIDE_GEMINI_KEY}` isn't set in `.env`. Also fixed the
+  node config shape, which was wrong: per
+  `.rocketride/schema/llm_gemini.json`, the nested config key is a short
+  label (`"5-flash"`), **not** the profile string itself
+  (`"gemini-2_5-flash"`) — different from the `llm_anthropic` pattern this
+  was originally modeled on. Still needs a real `ROCKETRIDE_GEMINI_KEY` in
+  `.env` to actually run; until then use `extractSkills()`
+  (`src/lib/rocketride/extractSkills.ts`), the deterministic fallback.
 
-### Placeholders that need confirming against the live catalog
-
-- `anonymize_text` and `parse` — provider ids inferred from confirmed
-  transformation-chain examples in the local docs, not yet cross-checked
-  against `services-catalog.json`.
-- `llm_gemini` — provider id inferred from the LLM selection table; the
-  `profile` value is an intentionally invalid placeholder
-  (`REPLACE_WITH_CONFIRMED_GEMINI_PROFILE_ID`) so it fails loudly instead of
-  guessing wrong. Read `.rocketride/schema/llm_gemini.json` →
-  `Pipe.schema.dependencies.profile.oneOf` once available.
-- Source node `config` shape (`hideForm`/`mode`/`parameters`/`type`) — two
-  local docs disagree on whether this is required or `{}` suffices; used the
-  stricter form since one doc explicitly warns it can fail validation
-  otherwise.
+Source-node `config` requires `hideForm`/`mode`/`type` (confirmed via
+`.rocketride/schema/webhook.json` and `chat.json` — `required` includes all
+three); `parameters` is optional. Response nodes' schemas list `laneName` as
+required, but the local common-mistakes doc explicitly endorses `config: {}`
+as correct/default for them, and `response_text`/`response_answers` run fine
+with `{}` in the confirmed-working `classify.pipe` — left as `{}`.
 
 ## Why classify.pipe only does PII scrubbing, not classification
 

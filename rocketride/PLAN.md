@@ -201,21 +201,30 @@ events (all 5 types), R3 `mapEvent` (deterministic, contract-validated), R4
 `writeTrustEvent`. 23 tests passing; `tsc --noEmit` and `vite build` both
 clean.
 
-**Done but unverified against a live engine:** `src/server/rocketride/client.ts`
-(typechecks against the real `rocketride` SDK types; import- and
-missing-auth-path smoke-tested). `classify.pipe` / `extract_skills.pipe`,
-corrected once against `.rocketride/docs/*` (the VS Code extension's local,
-authoritative-tier docs) — still not run, since
-`.rocketride/services-catalog.json` (server-generated) doesn't exist yet,
-meaning no engine has connected. See `pipelines/README.md` for the remaining
-placeholders that resolve automatically once that catalog appears.
+**Engine connected; `classify.pipe` confirmed running.** The teammate ran
+`RocketRide: Connect to Server`; `.rocketride/services-catalog.json` exists.
+Every provider id guessed earlier turned out correct against the real
+catalog. Fixed one real bug found this way: `anonymize_text_1` in
+`classify.pipe` had an empty `config` (its `profile` field is required) —
+now set to `glinerMultiPII`, a local NER model, no API key needed.
+`classify.pipe` (`webhook → parse → anonymize_text → response_text`) runs
+end-to-end.
+
+`extract_skills.pipe` failed with "Pipeline references 1 undefined
+variable" (`${ROCKETRIDE_GEMINI_KEY}` unset in `.env`) — also fixed a real
+config bug while there: the `llm_gemini` nested config key is a short label
+(`"5-flash"`), not the profile string, unlike the `llm_anthropic` pattern
+this was modeled on. **Still blocked on a real `ROCKETRIDE_GEMINI_KEY`** to
+actually run; `extractSkills()` is the deterministic fallback used until
+then. See `pipelines/README.md` for full detail.
+
+`src/server/rocketride/client.ts` (`classifyEvent()`, `pingEngine()`) still
+needs a run against the now-live engine to confirm the `anonymize_text`
+node's redaction output stays valid JSON (see the UNVERIFIED note in that
+file) — not yet done.
 
 **Not started:** R6 HTTP handoff to a live HydraDB ingest endpoint (file
 fallback works today).
-
-**Single unblocking action:** run **`RocketRide: Connect to Server`** in VS
-Code. That starts the local engine, generates the catalog, and resolves every
-open placeholder in one pass — then the smoke test can run for real.
 
 ### To communicate to Mohit (Rule 3 / shared-surface)
 
